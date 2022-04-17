@@ -1,2 +1,2 @@
 nginx -s stop   
-nginx -p ./app/nginx -c nginx.conf
+nginx -p ./nginx -c nginx.conf

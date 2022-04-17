@@ -11,7 +11,7 @@ FILE="./app/public/index.html"
   </head>
   <body>
     <h1>Hello World!</h1>
-    <p>This app was build on $currentDate</p>
+    <p>This app was built on $currentDate</p>
   </body>
 </html>
 EOF
