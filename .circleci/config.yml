@@ -1,9 +1,10 @@
 version: 2.1
-
+orbs: 
+  kubernetes: circleci/kubernetes@1.3.0
 jobs:
   test:
     docker:
-      - image: cimg/base:2022.04
+      - image: cimg/base:stable
     steps:
       - checkout
       - run:
@@ -15,7 +16,7 @@ jobs:
       - run: make lint
   build:
     docker:
-      - image: cimg/base:2022.04
+      - image: cimg/base:stable
     steps:
       - checkout
       - run: make setup
@@ -25,7 +26,7 @@ jobs:
             - project/app
   publish:
     docker:
-      - image: cimg/base:2022.04
+      - image: cimg/base:stable
         user: root
     steps:
       - checkout
@@ -38,7 +39,15 @@ jobs:
           docker build --tag samadarshad/devops-capstone-app .
           docker login -u samadarshad -p $DOCKERHUB_PASSWORD
           docker push samadarshad/devops-capstone-app
-
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - kubernetes/install-kubectl
+      - kubernetes/update-container-image:
+          container-image-updates: samadarshad/devops-capstone-app=samadarshad/devops-capstone-app
+          get-rollout-status: true
+          resource-name: devops-capstone-app
 
 workflows:
   deployment:
@@ -48,3 +57,5 @@ workflows:
           requires: [test]
       - publish:
           requires: [build]
+      - deploy:
+          requires: [publish]
