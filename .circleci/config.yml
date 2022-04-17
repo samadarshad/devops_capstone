@@ -10,12 +10,41 @@ jobs:
           name: install dependencies
           command: |
             # Install hadolint
-            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
-            chmod +x /bin/hadolint
+            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.10.0/hadolint-Linux-x86_64 &&\
+            sudo chmod +x /bin/hadolint
       - run: make lint
-      
+  build:
+    docker:
+      - image: cimg/base:2022.04
+    steps:
+      - checkout
+      - run: make setup
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/app
+  publish:
+    docker:
+      - image: cimg/base:2022.04
+        user: root
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
+      - run: |
+          docker build --tag samadarshad/devops-capstone-app .
+          docker login -u samadarshad -p $DOCKERHUB_PASSWORD
+          docker push samadarshad/devops-capstone-app
+
 
 workflows:
   deployment:
     jobs:
       - test
+      - build:
+          requires: [test]
+      - publish:
+          requires: [build]
