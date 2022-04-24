@@ -1,37 +1,18 @@
-Deployment Strategy:
-- Rolling: as this is the deployment strategy of Kubernetes. Also so that the incremental changes can be tested with real production users gradually, as opposed to Blue/Green which requires the Development team to test their changes in a staging environment, which may not reflect production.
+To initialise the infrastructure:
+0) Ensure you are authenticated with aws cli with the same IAM credentials as the CircleCI system. Otherwise you will need to follow https://aws.amazon.com/premiumsupport/knowledge-center/amazon-eks-cluster-access/ 
+1) eksctl create cluster --name udacity-devops-capstone --profile abdus-samad
+2) Ensure your kubectl context is AWS
+3) kubectl create -f deployments/deployment.yml -f deployments/service.yml
+4) kubectl get nodes to check the pods are online.
+5) kubectl get svc to see the external IP of the service. Visit the url endpoint to check the app is available publically.
 
-CI host:
-- CircleCI as most familiar with this.
+To run CircleCI:
+Ensure environment variables are set:
+DOCKERHUB_PASSWORD
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_DEFAULT_REGION
+Note the AWS user must be the same as the user which created the EKS cluster.
 
-Docker application:
-- Nginx "Hello World, my name is Samad. This application was created at 9/4/22 15:14"
-- because I would like to take the opportunity to learn a bit more about Nginx
-
-Infrastructure:
-- eksctl (Cloudformation) using a config file: https://eksctl.io/usage/creating-and-managing-clusters/
-- for local testing, I have a kubernetes cluster running locally with DockerDesktop
-- Kubernetes using manifest file: https://kubernetes.io/docs/reference/kubectl/cheatsheet/#kubectl-apply
-
-Post production testing:
-- Locust Load testing
-
-
-Example: https://github.com/vprocopan/own-capstone
-
-
-Plan:
-1) Create simple Nginx docker image which takes input: - name, current time, displays it in the html
-
-nginx -s stop   
-nginx -p ./nginx -c nginx.conf
-nginx
-
-
-lsof -nPL -iTCP:8080
-sudo rm /usr/local/var/run/nginx.pid
-kill <number>
-
-
-...
-alternatively, instead of relative paths, replace the /etc/nginx/nginx.conf and /www directories
+To delete the infrastructure:
+eksctl delete cluster --name udacity-devops-capstone --profile abdus-samad
