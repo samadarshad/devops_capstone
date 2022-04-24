@@ -44,16 +44,16 @@ jobs:
   deploy:
     docker:
       - image: cimg/base:stable
+        user: root
     steps:
       - checkout
-      - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: udacity-devops-capstone
           install-kubectl: true
       - kubernetes/update-container-image:
           get-rollout-status: true
-          resource-file-path: deployment/udacity-devops-capstone
-          container-image-updates: 'samadarshad/devops-capstone-app=samadarshad/devops-capstone-app:$CIRCLE_WORKFLOW_ID'
+          resource-name: deployment/udacity-devops-capstone
+          container-image-updates: samadarshad/devops-capstone-app=samadarshad/devops-capstone-app:$CIRCLE_WORKFLOW_ID
       - run: kubectl get pods
 
 
@@ -66,4 +66,4 @@ workflows:
       - publish:
           requires: [build]
       - deploy:
-          requires: [build]
+          requires: [publish]
